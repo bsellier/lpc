@@ -10,8 +10,8 @@ class LoginDisplay(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.setGeometry(300, 300, 350, 250)
-
+        #self.setGeometry(300, 300, 350, 250)
+        self.setWindowTitle("LPC")
 
         loginInput = QLineEdit(self)
         loginInput.setPlaceholderText("Identifiant")
@@ -38,12 +38,31 @@ class LoginDisplay(QWidget):
         self.showMaximized()
 
         
+class EntreeDisplay(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        refInput = QLineEdit(self)
+        refInput.setPlaceholderText("Référence")
+        refInput.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        layoutGrid = QGridLayout()
+
+        layoutGrid.setRowStretch(0, 1)
+        layoutGrid.addWidget(refInput, 1, 1, 1, 1)
+        layoutGrid.setRowStretch(2, 1)
+        layoutGrid.setColumnStretch(2, 1)
+
+        self.setLayout(layoutGrid)
+
+        self.showMaximized()
 
 
 
 def main():
     app = QApplication(sys.argv)
-    ex = LoginDisplay()
+    ex = EntreeDisplay()
     sys.exit(app.exec())
 
 
