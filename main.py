@@ -5,29 +5,33 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import * 
 
 #QMainWindow
-class Example(QWidget):
+class LoginDisplay(QWidget):
 
     def __init__(self):
         super().__init__()
         
         self.setGeometry(300, 300, 350, 250)
 
-        lbl1 = QLabel('Login', self)
 
-        line = QLineEdit(self)
+        loginInput = QLineEdit(self)
+        loginInput.setPlaceholderText("Identifiant")
+        loginInput.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        passwordInput = QLineEdit(self)
+        passwordInput.setPlaceholderText("Mot de passe")
+        passwordInput.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         layoutGrid = QGridLayout()
         self.setLayout(layoutGrid)
 
 
-        line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         layoutGrid.setColumnStretch(0, 1)
         layoutGrid.setColumnStretch(3, 1)
         layoutGrid.setRowStretch(0, 1)
-        layoutGrid.setRowStretch(3, 1)
+        layoutGrid.setRowStretch(4, 1)
 
-        layoutGrid.addWidget(line, 2, 2 , 1, 1)
-        layoutGrid.addWidget(lbl1, 1, 2, 1, 1)
+        layoutGrid.addWidget(loginInput, 2, 2 , 1, 1)
+        layoutGrid.addWidget(passwordInput, 3, 2, 1, 1)
 
 
 
@@ -39,7 +43,7 @@ class Example(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = LoginDisplay()
     sys.exit(app.exec())
 
 
