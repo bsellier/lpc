@@ -9,7 +9,7 @@ import sys
 #Ecran de login
 class LoginDisplay(QWidget):
 
-    def __init__(self, root):
+    def __init__(self, root=None):
         super().__init__()
         
         self.root = root
