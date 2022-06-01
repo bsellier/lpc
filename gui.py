@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QLineEdit
+from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QLineEdit, QMainWindow
+from PyQt5 import uic
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
 from PyQt5.QtCore import * 
@@ -45,9 +46,11 @@ class LoginDisplay(QWidget):
 
         self.showMaximized()
 
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Return:
+            self.connexion()
 
     def connexion(self):
-        print("test")
         login = self.loginInput.text()
         password = self.passwordInput.text()
         if controller.verifConnexion(login, password):
@@ -57,32 +60,45 @@ class LoginDisplay(QWidget):
                 self.root.changeDisplay(1)
             
 
-#ecran du poste d'entrée     
-class EntreeDisplay(QWidget):
+class InterfaceDisplay(QMainWindow):
 
     def __init__(self):
         super().__init__()
 
-        refInput = QLineEdit(self)
-        refInput.setPlaceholderText("Référence")
-        refInput.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        layoutGrid = QGridLayout()
-
-        layoutGrid.setRowStretch(0, 1)
-        layoutGrid.addWidget(refInput, 1, 1, 1, 1)
-        layoutGrid.setRowStretch(2, 1)
-        layoutGrid.setColumnStretch(2, 1)
-
-        self.setLayout(layoutGrid)
+        uic.loadUi('mainwindow.ui', self)
+        self.findChild(QPushButton, "cmdControler").hide()
+        self.findChild(QPushButton, "cmdControler").clicked.connect(self.commencerControle)
+    
+        #self.findChild(QMenuBar, "menubar").actions()[1].triggered.connect(self.deconnecter)
+        
+        self.findChild(QPushButton, "cmdAjoutUser").clicked.connect(self.ajouterUtilisateur)
 
         self.showMaximized()
     
+    def ajouterUtilisateur(self):
+        login = self.findChild(QLineEdit, "txtIdentifiantAjout").text()
+        #!!! A CHANGER !!! -> génération aléatoire du mot de passe
+        password = 123
+        admin = self.findChild(QComboBox, "lstDroit").currentText()
+        isAdmin = False
+        if(admin == "Administrateur"):
+            isAdmin = True
+        print(admin, isAdmin)
+        controller.ajouterUtilisateur(login, password, isAdmin)
 
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
-            self.close()
+    def checkPermissions(self):
+        if controller.isAdmin == False:
+            self.findChild(QTabWidget, "tabWidget").removeTab(2)
 
+    
+    
+    def commencerControle(self):
+        
+        print("clic")
+
+    def deconnecter(self):
+        print("deco")
+        self.close()
 
 
 class MainApp(QWidget):
@@ -93,7 +109,7 @@ class MainApp(QWidget):
 
         self.stackedWidget = QStackedWidget()
         self.stackedWidget.addWidget(LoginDisplay(self)) #index 0
-        self.stackedWidget.addWidget(EntreeDisplay()) #index 1
+        self.stackedWidget.addWidget(InterfaceDisplay()) #index 1
 
         self.layout.addWidget(self.stackedWidget)
         self.setLayout(self.layout)
@@ -101,9 +117,12 @@ class MainApp(QWidget):
     
     def changeDisplay(self, index):
         self.stackedWidget.setCurrentIndex(index)
+        print(controller.isAdmin)
+        if controller.isAdmin == False:
+            self.stackedWidget.widget(1).findChild(QTabWidget, "tabWidget").removeTab(2)
 
 
 def initGUI():
     app = QApplication(sys.argv)
     ex = MainApp()
-    sys.exit(app.exec())
+    sys.exit(app.exec())    

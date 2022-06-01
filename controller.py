@@ -1,12 +1,15 @@
 
+#from os import getloadavg
 import connexion
 # def initDB():
 #     global
 
 currentUser = ""
+isAdmin = False
 
 
 def verifConnexion(login, password):
+    global isAdmin
     print(login, password)
     try:
 
@@ -17,6 +20,9 @@ def verifConnexion(login, password):
         row = connexion.cur.fetchone()
         if row[0] == login and row[1] == password:
             currentUser = login
+            if row[2] == 1:
+                isAdmin = True
+                print(isAdmin)
             return True
     except:
         print("Mot de passe ou login invalide")
@@ -50,7 +56,11 @@ def modifMDP(ancienMDP, nouvMDP):
             print("mauvais mot de passe")
 
 
-def deconnexion():
+def quitter():
     connexion.cur.close()
     connexion.conn.close()
+
     currentUser = ""
+
+def deconnecter():
+    print("deco")
