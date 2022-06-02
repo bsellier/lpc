@@ -532,7 +532,7 @@
               </attribute>
               <column>
                <property name="text">
-                <string>Nouvelle colonne</string>
+                <string>Type de verre</string>
                </property>
               </column>
               <column>

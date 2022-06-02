@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import * 
 import controller
 import sys
+import json
 
 
 #Ecran de login
@@ -72,6 +73,11 @@ class InterfaceDisplay(QMainWindow):
         #self.findChild(QMenuBar, "menubar").actions()[1].triggered.connect(self.deconnecter)
         
         self.findChild(QPushButton, "cmdAjoutUser").clicked.connect(self.ajouterUtilisateur)
+        self.findChild(QPushButton, "cmdAjoutCommande").clicked.connect(self.importerCommande)
+        self.findChild(QTableWidget, "tableWidget_3").verticalHeader().setVisible(False)
+        self.findChild(QTableWidget, "tableWidget_3").cellClicked.connect(self.afficherInfoCommandes)
+        self.findChild(QTableWidget, "tableWidget_2").verticalHeader().setVisible(False)
+
 
         self.showMaximized()
     
@@ -90,8 +96,55 @@ class InterfaceDisplay(QMainWindow):
         if controller.isAdmin == False:
             self.findChild(QTabWidget, "tabWidget").removeTab(2)
 
+    def importerCommande(self):
+        fname = QFileDialog.getOpenFileName(self, 'Sélectionner une commande')
+
+        if fname[0] == None or fname[0] == "":
+            return
+        print(fname)
+        commandes = controller.importerCommande(fname[0])
+        if commandes == None:
+            return
+
+        cmdTable = self.findChild(QTableWidget, "tableWidget_3")
+        for idcommande in commandes.keys():
+            verres = commandes[idcommande]
+            if not isinstance(commandes[idcommande], list):
+                print("erreur", type(verres))
+
+            rowPos = cmdTable.rowCount()
+            cmdTable.insertRow(rowPos)
+            cmdTable.setItem(rowPos, 0, QTableWidgetItem(idcommande))
+            cmdTable.setItem(rowPos, 1, QTableWidgetItem("Oui" if verres[0]["special"] == 0 else "Non"))
+            cmdTable.setItem(rowPos, 2, QTableWidgetItem("Non"))
+            cmdTable.takeVerticalHeaderItem(rowPos)
+        
     
-    
+    def afficherInfoCommandes(self, x, y):
+        item = self.findChild(QTableWidget, "tableWidget_3").item(x, 0)
+        if item == None:
+            return
+        
+        detailTable = self.findChild(QTableWidget, "tableWidget_2")
+        detailTable.clear()
+        detailTable.setRowCount(0)
+
+        print(item.text())
+        infos = controller.getInfosCommande(item.text())
+        
+        if infos == None:
+            return
+        
+        
+        infos = str(infos)[2:-1]
+        infos = json.loads(infos)
+        
+        for verre in infos: #infos est une liste
+            rowPos = detailTable.rowCount()
+            detailTable.insertRow(rowPos)
+            detailTable.setItem(rowPos, 0, QTableWidgetItem(verre["type"]))
+            detailTable.setItem(rowPos, 1, QTableWidgetItem(str(verre["quantite"])))
+
     def commencerControle(self):
         
         print("clic")
