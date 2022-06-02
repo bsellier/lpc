@@ -594,7 +594,11 @@
               </attribute>
               <column>
                <property name="text">
+<<<<<<< HEAD
                 <string>Verre</string>
+=======
+                <string>Type de verre</string>
+>>>>>>> 9823a78e19007858b9d7d7c5cd22037b80ed41f1
                </property>
               </column>
               <column>
