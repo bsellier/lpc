@@ -85,7 +85,6 @@ class InterfaceDisplay(QMainWindow):
         self.webView = QWebEngineView()
         self.webView.settings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
         self.webView.settings().setAttribute(QWebEngineSettings.PdfViewerEnabled, True)
-        #self.webView.geometry
         self.findChild(QHBoxLayout , "pdfView").addWidget(self.webView)
 
         self.showMaximized()
@@ -115,8 +114,6 @@ class InterfaceDisplay(QMainWindow):
         if commandes == None:
             return
 
-
-        
         cmdTable = self.findChild(QTableWidget, "tableWidget_3")
         comboBoxCom = self.findChild(QComboBox, "txtNumCommande_2")
         for idcommande in commandes.keys():
@@ -152,12 +149,18 @@ class InterfaceDisplay(QMainWindow):
     def updatePdf(self, index):
         code = self.findChild(QComboBox, "typeVerre").itemText(index)
         infos = controller.getInfosTypeVerre(code)
-        # if infos[2] == None:
-        #     return
+        if infos == None or infos[2] == None:
+            self.webView.setHtml("<h2 style=\"text-align: center; margin-top: 40%\">Il n'y a pas de plan pour ce verre dans la base de données.</h2>")
+            return
 
-        #pdfbin = infos[2]
+        pdfbin = infos[2]
+        fname = '../plans/' + infos[0] + '.pdf'
+        file = open(fname, 'wb')
+        file.write(pdfbin)
+        file.close()
+        print(type(infos[2]))
         wd = path.dirname(sys.argv[0])
-        self.webView.setUrl(QUrl(f"file:///{wd}/../Plan de verre/00700M.PDF"))
+        self.webView.setUrl(QUrl(f"file:///{wd}/" + fname))
 
 
     def afficherInfoCommandes(self, x, y):
