@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QLineEdit, QMainWindow
 from PyQt5 import uic
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
-from PyQt5.QtCore import * 
+from PyQt5.QtCore import *
+from PyQt5.QtWebEngineWidgets import *
 import controller
 import sys
-import json
+from os import path
 
 
 #Ecran de login
@@ -67,17 +67,26 @@ class InterfaceDisplay(QMainWindow):
         super().__init__()
 
         uic.loadUi('mainwindow.ui', self)
-        self.findChild(QPushButton, "cmdControler").hide()
+        self.findChild(QPushButton, "cmdControler")
         self.findChild(QPushButton, "cmdControler").clicked.connect(self.commencerControle)
     
         #self.findChild(QMenuBar, "menubar").actions()[1].triggered.connect(self.deconnecter)
         
+        self.findChild(QPushButton, "cmdValiderVerre").clicked.connect(self.commencerControle)
         self.findChild(QPushButton, "cmdAjoutUser").clicked.connect(self.ajouterUtilisateur)
         self.findChild(QPushButton, "cmdAjoutCommande").clicked.connect(self.importerCommande)
         self.findChild(QTableWidget, "tableWidget_3").verticalHeader().setVisible(False)
         self.findChild(QTableWidget, "tableWidget_3").cellClicked.connect(self.afficherInfoCommandes)
         self.findChild(QTableWidget, "tableWidget_2").verticalHeader().setVisible(False)
+        self.findChild(QComboBox, "txtNumCommande_2").currentIndexChanged.connect(self.updateReference)
+        self.findChild(QComboBox, "typeVerre").currentIndexChanged.connect(self.updatePdf)
 
+        #pdf view
+        self.webView = QWebEngineView()
+        self.webView.settings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
+        self.webView.settings().setAttribute(QWebEngineSettings.PdfViewerEnabled, True)
+        #self.webView.geometry
+        self.findChild(QHBoxLayout , "pdfView").addWidget(self.webView)
 
         self.showMaximized()
     
@@ -106,12 +115,16 @@ class InterfaceDisplay(QMainWindow):
         if commandes == None:
             return
 
+
+        
         cmdTable = self.findChild(QTableWidget, "tableWidget_3")
+        comboBoxCom = self.findChild(QComboBox, "txtNumCommande_2")
         for idcommande in commandes.keys():
             verres = commandes[idcommande]
             if not isinstance(commandes[idcommande], list):
                 print("erreur", type(verres))
 
+            #ajout dans la prépa de commande
             rowPos = cmdTable.rowCount()
             cmdTable.insertRow(rowPos)
             cmdTable.setItem(rowPos, 0, QTableWidgetItem(idcommande))
@@ -119,7 +132,34 @@ class InterfaceDisplay(QMainWindow):
             cmdTable.setItem(rowPos, 2, QTableWidgetItem("Non"))
             cmdTable.takeVerticalHeaderItem(rowPos)
         
-    
+            #ajout dans controle verre
+            comboBoxCom.addItem(idcommande)
+
+
+    def updateReference(self, index):
+        print(index)
+        comboBoxRef = self.findChild(QComboBox, "typeVerre")
+        idcommande = self.findChild(QComboBox, "txtNumCommande_2").itemText(index)
+
+        verres = controller.getInfosCommande(idcommande)
+        if verres == None:
+            return
+
+        comboBoxRef.clear()
+        for verre in verres:
+            comboBoxRef.addItem(verre["type"])
+
+    def updatePdf(self, index):
+        code = self.findChild(QComboBox, "typeVerre").itemText(index)
+        infos = controller.getInfosTypeVerre(code)
+        # if infos[2] == None:
+        #     return
+
+        #pdfbin = infos[2]
+        wd = path.dirname(sys.argv[0])
+        self.webView.setUrl(QUrl(f"file:///{wd}/../Plan de verre/00700M.PDF"))
+
+
     def afficherInfoCommandes(self, x, y):
         item = self.findChild(QTableWidget, "tableWidget_3").item(x, 0)
         if item == None:
@@ -130,24 +170,19 @@ class InterfaceDisplay(QMainWindow):
         detailTable.setRowCount(0)
 
         print(item.text())
-        infos = controller.getInfosCommande(item.text())
+        verres = controller.getInfosCommande(item.text())
         
-        if infos == None:
+        if verres == None:
             return
         
-        
-        infos = str(infos)[2:-1]
-        infos = json.loads(infos)
-        
-        for verre in infos: #infos est une liste
+        for verre in verres: #infos est une liste
             rowPos = detailTable.rowCount()
             detailTable.insertRow(rowPos)
             detailTable.setItem(rowPos, 0, QTableWidgetItem(verre["type"]))
             detailTable.setItem(rowPos, 1, QTableWidgetItem(str(verre["quantite"])))
 
     def commencerControle(self):
-        
-        print("clic")
+        print("lic")
 
     def deconnecter(self):
         print("deco")
@@ -174,8 +209,42 @@ class MainApp(QWidget):
         if controller.isAdmin == False:
             self.stackedWidget.widget(1).findChild(QTabWidget, "tabWidget").removeTab(2)
 
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super(QMainWindow, self).__init__()
+
+        self.setWindowTitle("PDF Viewer")
+        self.setGeometry(0, 28, 1000, 750)
+        self.centralWidget = QWidget(self)
+
+        self.webView = QWebEngineView()
+        self.webView.settings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
+        self.webView.settings().setAttribute(QWebEngineSettings.PdfViewerEnabled, True)
+        self.setCentralWidget(self.webView)
+
+    def url_changed(self):
+        self.setWindowTitle(self.webView.title())
+
+    def go_back(self):
+        self.webView.back()
 
 def initGUI():
+    # app = QApplication(sys.argv)
+    # win = MainWindow()
+    # win.show()
+    # if len(sys.argv) > 1:
+    #     win.webView.setUrl(QUrl(f"file://{sys.argv[1]}"))
+    # else:
+    #     wd = path.dirname(sys.argv[0])
+    #     print(wd)
+    #     url = f"file:///{wd}/../Plan de verre/00700M.PDF"
+    #     win.webView.setUrl(QUrl(f"file:///{wd}/../Plan de verre/00700M.PDF"))
+    # sys.exit(app.exec_())
     app = QApplication(sys.argv)
     ex = MainApp()
     sys.exit(app.exec())    
+
+
+
+if __name__ == '__main__':
+    initGUI()
