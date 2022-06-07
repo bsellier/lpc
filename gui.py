@@ -143,6 +143,7 @@ class InterfaceDisplay(QMainWindow):
             return
 
         comboBoxRef.clear()
+        print(verres)
         for verre in verres:
             quant = verre["quantite"]
             print(type(quant))
