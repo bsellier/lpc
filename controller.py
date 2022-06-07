@@ -127,26 +127,6 @@ def getInfosCommande(idcommande):
     
     results = connexion.cur.fetchall()
     if len(results) > 0:
-        verres = results[0][2]
-        if verres == None:
-            return None
-        
-        verres = str(verres)[2:-1]
-        verres = json.loads(verres)
-        return verres
-    else:
-        return None
-
-def getInfosTypeVerre(code_article):
-    sql = "SELECT * FROM type_de_verre WHERE code_article = '" + code_article + "'"
-    connexion.cur.execute(sql)
-    
-    results = connexion.cur.fetchall()
-    if len(results) > 0:
-        return results[0]
-        # infoType = results[0]
-        
-        # print (infoType[0])
-
+        return results[0][2]
     else:
         return None
