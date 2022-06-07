@@ -143,7 +143,6 @@ class InterfaceDisplay(QMainWindow):
             return
 
         comboBoxRef.clear()
-        print(verres)
         for verre in verres:
             quant = verre["quantite"]
             print(type(quant))
@@ -220,24 +219,6 @@ class MainApp(QWidget):
         if controller.isAdmin == False:
             self.stackedWidget.widget(1).findChild(QTabWidget, "tabWidget").removeTab(2)
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super(QMainWindow, self).__init__()
-
-        self.setWindowTitle("PDF Viewer")
-        self.setGeometry(0, 28, 1000, 750)
-        self.centralWidget = QWidget(self)
-
-        self.webView = QWebEngineView()
-        self.webView.settings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
-        self.webView.settings().setAttribute(QWebEngineSettings.PdfViewerEnabled, True)
-        self.setCentralWidget(self.webView)
-
-    def url_changed(self):
-        self.setWindowTitle(self.webView.title())
-
-    def go_back(self):
-        self.webView.back()
 
 def initGUI():
     app = QApplication(sys.argv)
