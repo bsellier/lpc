@@ -144,10 +144,17 @@ class InterfaceDisplay(QMainWindow):
 
         comboBoxRef.clear()
         for verre in verres:
-            comboBoxRef.addItem(verre["type"])
+            quant = verre["quantite"]
+            print(type(quant))
+            while quant >= 1 :
+                #ajouter le dossier client à la reference si verre spécial
+                ref = verre["type"] + "_" + (str(quant) if quant >= 10 else "0" + str(quant)) + (("_" + verre["client"]) if verre["special"] == 1 else "")
+                comboBoxRef.addItem(ref)
+                quant -= 1
 
     def updatePdf(self, index):
         code = self.findChild(QComboBox, "typeVerre").itemText(index)
+        code = code[:code.find('_')]
         infos = controller.getInfosTypeVerre(code)
         if infos == None or infos[2] == None:
             self.webView.setHtml("<h2 style=\"text-align: center; margin-top: 40%\">Il n'y a pas de plan pour ce verre dans la base de données.</h2>")
@@ -232,17 +239,6 @@ class MainWindow(QMainWindow):
         self.webView.back()
 
 def initGUI():
-    # app = QApplication(sys.argv)
-    # win = MainWindow()
-    # win.show()
-    # if len(sys.argv) > 1:
-    #     win.webView.setUrl(QUrl(f"file://{sys.argv[1]}"))
-    # else:
-    #     wd = path.dirname(sys.argv[0])
-    #     print(wd)
-    #     url = f"file:///{wd}/../Plan de verre/00700M.PDF"
-    #     win.webView.setUrl(QUrl(f"file:///{wd}/../Plan de verre/00700M.PDF"))
-    # sys.exit(app.exec_())
     app = QApplication(sys.argv)
     ex = MainApp()
     sys.exit(app.exec())    

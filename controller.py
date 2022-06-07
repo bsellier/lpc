@@ -91,18 +91,20 @@ def importerCommande(fichier):
 
     commandes = {} #dictionnaire : à chaque commande correspond la liste de verre qu'on transformera en json
 
+    #ajouter les ids pour la référence
+    #dossier client pour les verres spéciaux
     for index, row in commande.iterrows():
         idcommande = row['Commandes']
         if idcommande in commandes.keys():
             listeVerre = commandes[idcommande]
-            listeVerre.append({"special": int(row['Spécial']), "type": row['Type de verre'], "quantite": row['Quantité']})
+            listeVerre.append({"special": int(row['Spécial']), "type": row['Code article'], "quantite": row['Quantité'], "client": str(row['Dossier Client'])})
             commandes[idcommande] = listeVerre
         
         else:
-            listeVerre = [{"special": int(row['Spécial']), "type": row['Type de verre'], "quantite": row['Quantité']}]
+            listeVerre = [{"special": int(row['Spécial']), "type": row['Code article'], "quantite": row['Quantité'], "client": str(row['Dossier Client'])}]
             commandes[idcommande] = listeVerre
         
-    #print(commandes)
+    print(commandes)
 
     #enregistrement dans la base de données
     try:
