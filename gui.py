@@ -2,6 +2,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
 from PyQt5.QtCore import *
+##pip install PyQtWebEngine
 from PyQt5.QtWebEngineWidgets import *
 import controller
 import sys
@@ -63,14 +64,16 @@ class LoginDisplay(QWidget):
 
 class InterfaceDisplay(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, root=None):
         super().__init__()
+
+        self.root = root
 
         uic.loadUi('mainwindow.ui', self)
         self.findChild(QPushButton, "cmdControler")
         self.findChild(QPushButton, "cmdControler").clicked.connect(self.commencerControle)
     
-        #self.findChild(QMenuBar, "menubar").actions()[1].triggered.connect(self.deconnecter)
+        self.findChild(QMenu, "menuMenu").triggered.connect(self.handleMenu)
         
         self.findChild(QPushButton, "cmdValiderVerre").clicked.connect(self.commencerControle)
         self.findChild(QPushButton, "cmdAjoutUser").clicked.connect(self.ajouterUtilisateur)
@@ -88,6 +91,25 @@ class InterfaceDisplay(QMainWindow):
         self.findChild(QHBoxLayout , "pdfView").addWidget(self.webView)
 
         self.showMaximized()
+
+    def handleMenu(self, action):
+        actionName = action.text()
+        print(actionName)
+
+        if actionName == "Deconnexion":
+            controller.currentUser = ""
+            controller.isAdmin = False
+            self.root.changeDisplay(0)
+            self.checkPermissions()
+
+            return
+        
+        if actionName == "Quitter":
+            self.root.close()
+            return
+        
+        if actionName == "Changer mot de passe":
+            print("C")
     
     def ajouterUtilisateur(self):
         login = self.findChild(QLineEdit, "txtIdentifiantAjout").text()
@@ -154,6 +176,15 @@ class InterfaceDisplay(QMainWindow):
 
     def updatePdf(self, index):
         code = self.findChild(QComboBox, "typeVerre").itemText(index)
+
+        #si le verre est spécial on extrait le num de dossier
+        numdoss = code[code.find('_') + 1:]
+        numdoss = numdoss[numdoss.find('_') + 1:]
+        print(numdoss)
+        if numdoss != - 1:
+            self.findChild(QLineEdit, "txtNumDossier").setText(numdoss)
+
+        #on extrait le code article
         code = code[:code.find('_')]
         infos = controller.getInfosTypeVerre(code)
         if infos == None or infos[2] == None:
@@ -165,9 +196,11 @@ class InterfaceDisplay(QMainWindow):
         file = open(fname, 'wb')
         file.write(pdfbin)
         file.close()
-        print(type(infos[2]))
+        
         wd = path.dirname(sys.argv[0])
         self.webView.setUrl(QUrl(f"file:///{wd}/" + fname))
+
+        
 
 
     def afficherInfoCommandes(self, x, y):
@@ -207,7 +240,7 @@ class MainApp(QWidget):
 
         self.stackedWidget = QStackedWidget()
         self.stackedWidget.addWidget(LoginDisplay(self)) #index 0
-        self.stackedWidget.addWidget(InterfaceDisplay()) #index 1
+        self.stackedWidget.addWidget(InterfaceDisplay(self)) #index 1
 
         self.layout.addWidget(self.stackedWidget)
         self.setLayout(self.layout)

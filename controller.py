@@ -29,6 +29,8 @@ def verifConnexion(login, password):
             if row[2] == 1:
                 isAdmin = True
                 print(isAdmin)
+            else:
+                isAdmin = False
             return True
     except:
         print("Mot de passe ou login invalide")
