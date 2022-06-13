@@ -7,7 +7,7 @@ _____________________________________
 - L'application est actuellement configuré pour fonctionner sur une base de données stocker sur le réseau de l'UTC, 
 il faudrait donc penser à reimplémenter cette base de données sur un autre server. Pour cela vous devez vous servir de la 
 commande contenu dans le fichier sql sr09.. pour implementer cette bdd;
-- Changer dans le fichier connexion.py, les informations de connexion à la bdd;
+- Changer dans le fichier connexion.py et identifiants.py, les informations de connexion à la bdd;
 - Double-cliquer sur main.py pour lancer l'application;
 - Dans la bdd, existe déjà un utilisateur nommé "admin" avec comme mot de passe "123" pour l'accès à l'application. 
 - Les fonctions de contrôle de bouton se trouve dans le fichier controle.py et les fenêtres ont été réalisées avec Qt Creator.
