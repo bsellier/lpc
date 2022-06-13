@@ -1,11 +1,14 @@
+from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QLineEdit, QMainWindow
 from PyQt5 import uic
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
 from PyQt5.QtCore import *
 ##pip install PyQtWebEngine
 from PyQt5.QtWebEngineWidgets import *
+from PyQt5.QtCore import * 
 import controller
 import sys
+import json
 from os import path
 
 
@@ -70,7 +73,7 @@ class InterfaceDisplay(QMainWindow):
         self.root = root
 
         uic.loadUi('mainwindow.ui', self)
-        self.findChild(QPushButton, "cmdControler")
+        self.findChild(QPushButton, "cmdControler").hide()
         self.findChild(QPushButton, "cmdControler").clicked.connect(self.commencerControle)
     
         self.findChild(QMenu, "menuMenu").triggered.connect(self.handleMenu)
@@ -143,7 +146,6 @@ class InterfaceDisplay(QMainWindow):
             if not isinstance(commandes[idcommande], list):
                 print("erreur", type(verres))
 
-            #ajout dans la prépa de commande
             rowPos = cmdTable.rowCount()
             cmdTable.insertRow(rowPos)
             cmdTable.setItem(rowPos, 0, QTableWidgetItem(idcommande))
@@ -213,19 +215,24 @@ class InterfaceDisplay(QMainWindow):
         detailTable.setRowCount(0)
 
         print(item.text())
-        verres = controller.getInfosCommande(item.text())
+        infos = controller.getInfosCommande(item.text())
         
-        if verres == None:
+        if infos == None:
             return
         
-        for verre in verres: #infos est une liste
+        
+        infos = str(infos)[2:-1]
+        infos = json.loads(infos)
+        
+        for verre in infos: #infos est une liste
             rowPos = detailTable.rowCount()
             detailTable.insertRow(rowPos)
             detailTable.setItem(rowPos, 0, QTableWidgetItem(verre["type"]))
             detailTable.setItem(rowPos, 1, QTableWidgetItem(str(verre["quantite"])))
 
     def commencerControle(self):
-        print("lic")
+        
+        print("clic")
 
     def deconnecter(self):
         print("deco")
@@ -257,8 +264,3 @@ def initGUI():
     app = QApplication(sys.argv)
     ex = MainApp()
     sys.exit(app.exec())    
-
-
-
-if __name__ == '__main__':
-    initGUI()
