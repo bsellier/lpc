@@ -126,8 +126,12 @@ class InterfaceDisplay(QMainWindow):
         controller.ajouterUtilisateur(login, password, isAdmin)
 
     def checkPermissions(self):
+        print(controller.isAdmin, "1")
         if controller.isAdmin == False:
-            self.findChild(QTabWidget, "tabWidget").removeTab(2)
+            self.findChild(QTabWidget, "tabWidget").setTabVisible(2, False)
+        else:
+            self.findChild(QTabWidget, "tabWidget").setTabVisible(2, True)
+        
 
     def importerCommande(self):
         fname = QFileDialog.getOpenFileName(self, 'Sélectionner une commande')
@@ -220,9 +224,10 @@ class InterfaceDisplay(QMainWindow):
         if infos == None:
             return
         
-        
-        infos = str(infos)[2:-1]
-        infos = json.loads(infos)
+        print(infos)
+        #infos = str(infos)[2:-1]
+        print(infos)
+        #infos = json.loads(infos)
         
         for verre in infos: #infos est une liste
             rowPos = detailTable.rowCount()
@@ -255,9 +260,9 @@ class MainApp(QWidget):
     
     def changeDisplay(self, index):
         self.stackedWidget.setCurrentIndex(index)
-        print(controller.isAdmin)
-        if controller.isAdmin == False:
-            self.stackedWidget.widget(1).findChild(QTabWidget, "tabWidget").removeTab(2)
+        if index == 1:
+            self.stackedWidget.widget(1).checkPermissions()
+
 
 
 def initGUI():
